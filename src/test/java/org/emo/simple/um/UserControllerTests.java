@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -71,6 +73,21 @@ public class UserControllerTests {
   }
 
   @Test
+  public void registerNewUser() throws Exception {
+    User user = new User("daffy.duck@acme.org", "Daffy", "Duck");
+
+    mockMvc.perform(post("/users")
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        .param("email", user.getEmail())
+        .param("firstName", user.getFirstName())
+        .param("firstName", user.getLastName()))
+
+    .andExpect(status().isCreated());
+
+    Mockito.verify(repositoryMock, Mockito.times(1)).save(user);
+  }
+
+  @Test
   public void deleteUserByEmail() throws Exception {
     Mockito.when(repositoryMock.findAll()).thenReturn(Arrays.asList(
         new User("bugs.bunny@acme.org", "Bugs", "Bunny"),
@@ -85,8 +102,8 @@ public class UserControllerTests {
 
   @Test
   public void deleteUserWithouEmail() throws Exception {
-    mockMvc.perform(delete("/users//"))
-         .andExpect(status().isMethodNotAllowed());
+    mockMvc.perform(delete("/users/xy/"))
+        .andExpect(status().isBadRequest());
 
     Mockito.verifyZeroInteractions(repositoryMock);
   }

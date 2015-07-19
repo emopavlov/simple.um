@@ -4,10 +4,19 @@ angular.module('simpleUm', ['ngDialog'])
 
   $scope.openAddDialog = function() {
     ngDialog.open({
-      template : '<p>This is a simple dialog</p>',
-      className: 'ngdialog-theme-default',
-      plain : true
+      template : 'registerUserDialog',
+      controller: 'simpleUmController',
+      className: 'ngdialog-theme-default'
     });
+  };
+  
+  $scope.registerUser = function(newUser) {
+    $http.post("/users", newUser).success(function(response) {
+      
+    }).error(function(response) {
+      
+    });
+    
   };
   
   $scope.deleteUser = function(email) {
