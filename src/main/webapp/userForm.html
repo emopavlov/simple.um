@@ -4,6 +4,7 @@
 		First Name: <input type="text" ng-model="newUser.firstName" /><br />
 		Last Name: <input type="text" ng-model="newUser.lastName" /><br />
 		E-mail: <input type="email" ng-model="newUser.email" /><br />
+    Date of Birth: <input type="date" ng-model="newUser.birthdate" max="{{ today | date:'yyyy-MM-dd' }}"/><br />
 	</div>
 	<div class="ngdialog-buttons">
 		<button type="button" class="ngdialog-button ngdialog-button-primary"

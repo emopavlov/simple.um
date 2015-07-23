@@ -1,9 +1,12 @@
 angular.module('simpleUm', ['ngDialog'])
   .controller('simpleUmController', function($scope, $http, ngDialog) {
+  
   $scope.appName = "Simple User Manangement";
-
+  $scope.sortProperty = 'email';
+  $scope.today = new Date();
+  
   $scope.openAddDialog = function() {
-    ngDialog.open({
+    var dialog = ngDialog.open({
       template : 'registerUserDialog',
       controller: 'simpleUmController',
       className: 'ngdialog-theme-default'
@@ -12,11 +15,9 @@ angular.module('simpleUm', ['ngDialog'])
   
   $scope.registerUser = function(newUser) {
     $http.post("/users", newUser).success(function(response) {
-      
-    }).error(function(response) {
-      
+    	$scope.listUsers();
+      $scope.closeThisDialog();
     });
-    
   };
   
   $scope.deleteUser = function(email) {
