@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="css/modules/ngDialog.css"></link>
 <link rel="stylesheet" href="css/modules/ngDialog-theme-default.css"></link>
 <link rel="stylesheet" href="css/modules/ngDialog-theme-plain.css"></link>
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 
 <body>
@@ -12,19 +14,22 @@
 	<script src="scripts/modules/ngDialog.js"></script>
 	<script src="scripts/simpleUmController.js"></script>
 
-	<div ng-app="simpleUm" ng-controller="simpleUmController">
+	<div class="container" ng-app="simpleUm" ng-controller="simpleUmController">
 
     <!-- Templates -->
     <script type="text/ng-template" id="registerUserDialog">
       <div ng-include="'userForm.html'"></div>
     </script>
     
-		<p>Users:</p>
+		<div class="jumbotron">
+      <h1>ACME.org</h1>
+    </div>
 
-		<table>
+		<table class="table table-striped">
 			<tr>
-				<td colspan="4" align="right">
-					<button ng-click="openAddDialog()">+</button>
+        <td colspan="4"></td>
+				<td>
+					<button class="btn btn-primary" ng-click="openAddDialog()">+</button>
 				</td>
 			</tr>
 			<tr>
@@ -48,7 +53,7 @@
 				<td>{{ user.email }}</td>
         <td>{{ user.birthdate }}</td>
 				<td>
-				  <button ng-click="deleteUser(user.email)">X</button>
+				  <button class="btn" ng-click="deleteUser(user.email)">X</button>
 				</td>
 			</tr>
 		</table>

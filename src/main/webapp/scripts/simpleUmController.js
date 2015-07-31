@@ -8,8 +8,7 @@ angular.module('simpleUm', ['ngDialog'])
   $scope.openAddDialog = function() {
     var dialog = ngDialog.open({
       template : 'registerUserDialog',
-      controller: 'simpleUmController',
-      className: 'ngdialog-theme-default'
+      controller: 'simpleUmController'
     });
   };
   
