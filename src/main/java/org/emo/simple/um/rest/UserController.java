@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityExistsException;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.emo.simple.um.dao.UserRepository;
@@ -44,16 +43,31 @@ public class UserController {
     if (result.hasErrors()) {
       throw new FormValidationException(result);
     }
-    
+
     if (repository.exists(user.getEmail())) {
       throw new EntityExistsException(String.format("User with email '%s' already exists", user.getEmail()));
     }
-    
+
+    repository.save(user);
+  }
+
+  @RequestMapping(value = "/{email}/", method = RequestMethod.PUT)
+  public @ResponseBody void updateUser(@PathVariable("email") String email, @Valid @RequestBody User user,
+      BindingResult result) throws FormValidationException {
+    if (!user.getEmail().equalsIgnoreCase(email)) {
+      throw new IllegalArgumentException(
+          String.format("Email in path '%s' does not match email in user '%s'", email, user.getEmail()));
+    }
+
+    if (result.hasErrors()) {
+      throw new FormValidationException(result);
+    }
+
     repository.save(user);
   }
 
   @RequestMapping(value = "/{email}/", method = RequestMethod.DELETE)
-  public @ResponseBody void deleteUser(HttpServletResponse response, @PathVariable("email") String email)
+  public @ResponseBody void deleteUser(@PathVariable("email") String email)
       throws IOException {
 
     EmailValidator emailValidator = new EmailValidator();
@@ -67,26 +81,51 @@ public class UserController {
 
   @ExceptionHandler(IllegalArgumentException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public @ResponseBody String parameterValidationError(IllegalArgumentException ex) {
-    return ex.getMessage();
+  public @ResponseBody ErrorResponse parameterValidationError(IllegalArgumentException ex) {
+    ErrorResponse response = new ErrorResponse();
+    response.setErrorMessage(ex.getMessage());
+    return response;
   }
-  
+
   @ExceptionHandler(EntityExistsException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
-  public @ResponseBody String userConflictError(EntityExistsException ex) {
-    return ex.getMessage();
+  public @ResponseBody ErrorResponse userConflictError(EntityExistsException ex) {
+    ErrorResponse response = new ErrorResponse();
+    response.getFieldErrors().put("email", ex.getMessage());
+    return response;
   }
-  
+
   @ExceptionHandler(FormValidationException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public @ResponseBody Map<String, String> formValidationError(FormValidationException ex) {
-    Map<String, String> errors = new HashMap<String, String>();
-    
+  public @ResponseBody ErrorResponse formValidationError(FormValidationException ex) {
+    ErrorResponse response = new ErrorResponse();
+
     BindingResult result = ex.getResult();
     for (FieldError error : result.getFieldErrors()) {
-      errors.put(error.getField(), error.getDefaultMessage());
+      response.getFieldErrors().put(error.getField(), error.getDefaultMessage());
     }
-    
-    return errors;
+
+    return response;
+  }
+
+  private class ErrorResponse {
+    private String errorMessage;
+    private Map<String, String> fieldErrors = new HashMap<String, String>();
+
+    public String getErrorMessage() {
+      return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+      this.errorMessage = errorMessage;
+    }
+
+    public Map<String, String> getFieldErrors() {
+      return fieldErrors;
+    }
+
+    public void setFieldErrors(Map<String, String> fieldErrors) {
+      this.fieldErrors = fieldErrors;
+    }
   }
 }

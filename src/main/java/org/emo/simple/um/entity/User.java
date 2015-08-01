@@ -5,10 +5,15 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 
 import org.hibernate.validator.constraints.Email;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Entity
 @Table(name = "users")
@@ -20,9 +25,13 @@ public class User {
   
   private String firstName;
   
+  @NotBlank
   private String lastName;
   
-  @JsonFormat(pattern="yyyy-MM-dd")
+  @Temporal(TemporalType.DATE)
+  @DateTimeFormat(iso = ISO.DATE)
+  @Past
+  @NotNull
   private Date birthdate;
 
   public User() {
@@ -38,7 +47,7 @@ public class User {
   @Override
   public String toString() {
     return String.format(
-        "User[email=%s, firstName='%s', lastName='%s', birthdate='%s']",
+        "User {email=%s, firstName='%s', lastName='%s', birthdate='%s'}",
         email, firstName, lastName, birthdate.toString());
   }
 

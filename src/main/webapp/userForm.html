@@ -1,14 +1,64 @@
 
-<form>
-	<div class="ngdialog-message">
-		First Name: <input type="text" ng-model="newUser.firstName" /><br />
-		Last Name: <input type="text" ng-model="newUser.lastName" /><br />
-		E-mail: <input type="email" ng-model="newUser.email" /><br />
-    Date of Birth: <input type="date" ng-model="newUser.birthdate" max="{{ today | date:'yyyy-MM-dd' }}"/><br />
+<form role="form" name="userForm" novalidate>
+  <div class="ngdialog-message">
+    <div class="panel panel-danger" ng-show="hasErrors">
+      <div class="panel-heading">Error</div>
+      <div class="panel-body">{{ errors.errorText }}</div>
+    </div>
+    
+		<div class="form-group"
+			ng-class="{ 'has-error': errors.fieldErrors.firstName || userForm.firstName.$invalid && userForm.firstName.$dirty }">
+			<label for="firstName">First Name</label> 
+			<input id="firstName" name="firstName" class="form-control" type="text"
+				ng-model="currentUser.firstName" ng-change="clearErrors('firstName')"/>
+			<p class="text-danger" ng-show="errors.fieldErrors.firstName">{{errors.fieldErrors.firstName}}</p>
+		</div>
+		
+		<div class="form-group"
+			ng-class="{ 'has-error': errors.fieldErrors.lastName || userForm.lastName.$invalid && userForm.lastName.$dirty }">
+			<label for="lastName">Last Name *</label> <input id="lastName"
+				class="form-control" type="text" ng-model="currentUser.lastName"
+				required ng-change="clearErrors('lastName')"/>
+			<p class="text-danger" ng-show="errors.fieldErrors.lastName">{{errors.fieldErrors.lastName}}</p>
+		</div>
+		
+		<div class="form-group"
+			ng-class="{ 'has-error': errors.fieldErrors.email || userForm.email.$invalid && userForm.email.$dirty }">
+			<label for="email">E-mail *</label> 
+			<input id="email" name="email" ng-readonly="dialogMode == 'edit'"
+				class="form-control" type="email" ng-model="currentUser.email"
+				required ng-change="clearErrors('email')">
+				<p class="bg-danger" ng-show="errors.fieldErrors.email">{{errors.fieldErrors.email}}</p>
+		</div>
+		
+		<div class="form-group"
+			ng-class="{ 'has-error': errors.fieldErrors.birthdate || userForm.birthdate.$invalid && userForm.birthdate.$dirty }">
+			<label for="birthdate">Date of Birth *</label> <input id="birthdate"
+				name="birthdate" class="form-control" type="date" placeholder="yyyy-MM-dd"
+				ng-model="currentUser.birthdate" max="{{ today | date:'yyyy-MM-dd' }}"
+				required ng-change="clearErrors('birthdate')"/>
+			<p class="text-danger" ng-show="errors.fieldErrors.birthdate">{{errors.fieldErrors.birthdate}}</p>
+		</div>
 	</div>
-	<div class="ngdialog-buttons">
-		<button type="button" class="btn btn-primary"
-			ng-click="registerUser(newUser)">Register</button>
+	
+	<div class="ngdialog-buttons" align="right">
+		<div ng-show="{{ dialogMode == 'add' }}">
+			<button type="button" class="btn btn-primary"	ng-disabled="!userForm.$valid" ng-click="registerUser(currentUser)">
+		    <span class="glyphicon glyphicon-plus-sign"></span>
+				Add
+			</button>
+		</div>
+		
+		<div ng-show="{{ dialogMode == 'edit' }}">
+		  <button type="button" class="btn btn-danger"  ng-click="deleteUser(currentUser.email)">
+		    <span class="glyphicon glyphicon-trash"></span>
+		    Delete
+		  </button>		  
+		  <button type="button" class="btn btn-primary" ng-disabled="!userForm.$valid" ng-click="updateUser(currentUser)">
+		    <span class="glyphicon glyphicon-floppy-disk"></span>
+		    Update
+		  </button>
+		</div>
 	</div>
 
 </form>
