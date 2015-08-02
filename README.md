@@ -16,7 +16,8 @@ The server will be listening on port 8080. Access application at <http://localho
 ###TODO
 * Improve errors displayed on user form
 * Successful operation notifications
+* Download resources
 * Switch to user IDs instead of email as a user identifier
-* Fix date is unit tests
+* Fix date in unit tests
 * Corporation logo
 * User images

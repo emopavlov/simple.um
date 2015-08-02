@@ -1,3 +1,9 @@
 .editable {
   cursor: pointer;
 }
+
+.jumbotron {
+	min-height: 16em;
+	vertical-align: middle;
+	align: center;
+}
