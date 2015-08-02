@@ -2,27 +2,25 @@ var umModule = angular.module('simpleUm', ['ngDialog']);
 
 umModule.controller('simpleUmController', function($scope, $http, ngDialog) {
   
-  $scope.appName = "Simple User Manangement";
   $scope.sortProperty = 'email';
   $scope.reverseSort = false;
-  $scope.today = new Date();
   
   $scope.openDialog = function(user) {
     $scope._setCurrentUser(user);
     var dialog = ngDialog.open({
       template : 'registerUserDialog',
-      controller: 'simpleUmController',
+      controller: 'userFormController',
       className: 'ngdialog-theme-default',
       scope: $scope
     });
   };
   
   $scope._setCurrentUser = function(user) {
-    $scope.currentUser = {};
-    $scope.currentUser.firstName = user.firstName;
-    $scope.currentUser.lastName = user.lastName;
-    $scope.currentUser.email = user.email;
-    $scope.currentUser.birthdate = new Date(user.birthdate);
+    this.currentUser = {};
+    this.currentUser.firstName = user.firstName;
+    this.currentUser.lastName = user.lastName;
+    this.currentUser.email = user.email;
+    this.currentUser.birthdate = new Date(user.birthdate);
   }
   
   $scope.openAddDialog = function() {
@@ -42,30 +40,6 @@ umModule.controller('simpleUmController', function($scope, $http, ngDialog) {
     });
   };
   
-  $scope.registerUser = function(newUser) {
-    $http.post("/users", newUser).success(function() {
-      $scope.closeThisDialog();
-    }).error(function(data){
-      $scope.setError(data);
-    });
-  };
-  
-  $scope.updateUser = function(user) {
-    $http.put("/users/" + user.email + "/", user).success(function(data) {
-      $scope.closeThisDialog();
-    }).error(function(data, status, headers, config){
-      $scope.setError(data);
-    });
-  };
-  
-  $scope.deleteUser = function(email) {
-    $http.delete("/users/" + email + "/").success(function() {
-      $scope.closeThisDialog();
-    }).error(function(data){
-      $scope.setError(data);
-    });
-  };
-  
   $scope.isToShowChevron = function(property, direction) {
     var selectedDirection = $scope.reverseSort ? 'up' : 'down';
     return selectedDirection == direction && $scope.sortProperty == property;
@@ -78,6 +52,38 @@ umModule.controller('simpleUmController', function($scope, $http, ngDialog) {
     } else {
       $scope.reverseSort = !$scope.reverseSort;
     }
+  };
+  
+  $scope.$on('usersUpdatedEvent', function(event, args) {
+    $scope.listUsers();
+  });
+
+  $scope.listUsers();  
+});
+
+umModule.controller('userFormController', function($scope, $http, ngDialog) {
+  
+  $scope.today = new Date();
+  
+  $scope.registerUser = function(newUser) {
+    $scope.handleServerResponse($http.post("/users", newUser));
+  };
+  
+  $scope.updateUser = function(user) {
+    $scope.handleServerResponse($http.put("/users/" + user.email + "/", user));
+  };
+  
+  $scope.deleteUser = function(email) {
+    $scope.handleServerResponse($http.delete("/users/" + email + "/"));
+  };
+
+  $scope.handleServerResponse = function(httpPromise) {
+    httpPromise.success(function(data) {
+      $scope.$emit('usersUpdatedEvent', null);
+      $scope.closeThisDialog();
+    }).error(function(data, status, headers, config){
+      $scope.setError(data);
+    });
   };
   
   $scope.setError = function(data) {
@@ -98,6 +104,4 @@ umModule.controller('simpleUmController', function($scope, $http, ngDialog) {
       $scope.errors.fieldErrors[field] = null;
     }
   }
-
-  $scope.listUsers();  
 });
