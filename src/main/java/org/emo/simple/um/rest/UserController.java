@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 import org.emo.simple.um.dao.UserRepository;
 import org.emo.simple.um.entity.User;
-import org.hibernate.validator.internal.constraintvalidators.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -44,47 +44,39 @@ public class UserController {
       throw new FormValidationException(result);
     }
 
-    if (repository.exists(user.getEmail())) {
+    User existingUser = repository.findByEmail(user.getEmail());
+    if (existingUser != null && existingUser.getEmail().equalsIgnoreCase(user.getEmail())) {
+      throw new EntityExistsException(String.format("User with email '%s' already exists", user.getEmail()));
+    }
+
+    user.setId(0);
+    repository.save(user);
+  }
+
+  @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+  public @ResponseBody void updateUser(@PathVariable("id") long id, @Valid @RequestBody User user,
+      BindingResult result) throws FormValidationException {
+    if (result.hasErrors()) {
+      throw new FormValidationException(result);
+    }
+    
+    if (!repository.exists(id)) {
+      throw new EntityNotFoundException(String.format("The user with id %d does not exist", id));
+    }
+    
+    user.setId(id);
+
+    User existingUser = repository.findByEmail(user.getEmail());
+    if (existingUser != null && existingUser.getId() != id) {
       throw new EntityExistsException(String.format("User with email '%s' already exists", user.getEmail()));
     }
 
     repository.save(user);
   }
 
-  @RequestMapping(value = "/{email}/", method = RequestMethod.PUT)
-  public @ResponseBody void updateUser(@PathVariable("email") String email, @Valid @RequestBody User user,
-      BindingResult result) throws FormValidationException {
-    if (!user.getEmail().equalsIgnoreCase(email)) {
-      throw new IllegalArgumentException(
-          String.format("Email in path '%s' does not match email in user '%s'", email, user.getEmail()));
-    }
-
-    if (result.hasErrors()) {
-      throw new FormValidationException(result);
-    }
-
-    repository.save(user);
-  }
-
-  @RequestMapping(value = "/{email}/", method = RequestMethod.DELETE)
-  public @ResponseBody void deleteUser(@PathVariable("email") String email)
-      throws IOException {
-
-    EmailValidator emailValidator = new EmailValidator();
-    if (!emailValidator.isValid(email, null)) {
-      throw new IllegalArgumentException(email + " is not a valid email address");
-    }
-
-    email = email.toLowerCase();
-    repository.delete(new User(email, null, null, null));
-  }
-
-  @ExceptionHandler(IllegalArgumentException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public @ResponseBody ErrorResponse parameterValidationError(IllegalArgumentException ex) {
-    ErrorResponse response = new ErrorResponse();
-    response.setErrorMessage(ex.getMessage());
-    return response;
+  @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+  public @ResponseBody void deleteUser(@PathVariable("id") long id) throws IOException {
+    repository.delete(id);
   }
 
   @ExceptionHandler(EntityExistsException.class)
@@ -92,6 +84,14 @@ public class UserController {
   public @ResponseBody ErrorResponse userConflictError(EntityExistsException ex) {
     ErrorResponse response = new ErrorResponse();
     response.getFieldErrors().put("email", ex.getMessage());
+    return response;
+  }
+  
+  @ExceptionHandler(EntityNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public @ResponseBody ErrorResponse unknownUser(EntityNotFoundException ex) {
+    ErrorResponse response = new ErrorResponse();
+    response.setErrorMessage(ex.getMessage());
     return response;
   }
 
@@ -108,6 +108,7 @@ public class UserController {
     return response;
   }
 
+  @SuppressWarnings("unused")
   private class ErrorResponse {
     private String errorMessage;
     private Map<String, String> fieldErrors = new HashMap<String, String>();

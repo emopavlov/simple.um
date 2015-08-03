@@ -3,7 +3,9 @@ A simple user management for Acme Corporation
 
 
 ### Build and run project
-simple.um is a web project built with Spring Boot. To run the project you would need to have Maven and JDK 1.8 installed. Some resources are downloaded from remote location, therefore, internet access is required as well.
+simple.um is a web project built with Spring Boot. To run the project you would need to have Maven and JDK 1.8 installed. Some resources are downloaded from remote locations, therefore, internet access is required as well.
+The web container is Tomcat 7.
+The DB is HSQLDB. It is created when the project is run and is filled with some data to give you a start.
 
 To build and run the project execute the following command from the project top folder:
 > mvn spring-boot:run
@@ -15,9 +17,8 @@ The server will be listening on port 8080. Access application at <http://localho
 
 ###TODO
 * Improve errors displayed on user form
+* Better date handling
 * Successful operation notifications
 * Download resources
-* Switch to user IDs instead of email as a user identifier
 * Fix date in unit tests
-* Corporation logo
 * User images

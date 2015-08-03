@@ -17,6 +17,7 @@ umModule.controller('simpleUmController', function($scope, $http, ngDialog) {
   
   $scope._setCurrentUser = function(user) {
     this.currentUser = {};
+    this.currentUser.id = user.id
     this.currentUser.firstName = user.firstName;
     this.currentUser.lastName = user.lastName;
     this.currentUser.email = user.email;
@@ -70,11 +71,11 @@ umModule.controller('userFormController', function($scope, $http, ngDialog) {
   };
   
   $scope.updateUser = function(user) {
-    $scope.handleServerResponse($http.put("/users/" + user.email + "/", user));
+    $scope.handleServerResponse($http.put("/users/" + user.id, user));
   };
   
-  $scope.deleteUser = function(email) {
-    $scope.handleServerResponse($http.delete("/users/" + email + "/"));
+  $scope.deleteUser = function(id) {
+    $scope.handleServerResponse($http.delete("/users/" + id));
   };
 
   $scope.handleServerResponse = function(httpPromise) {

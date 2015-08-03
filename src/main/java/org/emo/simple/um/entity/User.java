@@ -3,6 +3,8 @@ package org.emo.simple.um.entity;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -19,8 +21,12 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 @Table(name = "users")
 public class User {
 
-  @Email
   @Id
+  @GeneratedValue(strategy=GenerationType.IDENTITY)
+  private long id;
+  
+  @Email
+  @NotBlank
   private String email;
   
   private String firstName;
@@ -43,12 +49,25 @@ public class User {
     this.setLastName(lastName);
     this.setBirthdate(birthdate);
   }
+  
+  public User(long id, String email, String firstName, String lastName, Date birthdate) {
+    this(email, firstName, lastName, birthdate);
+    this.id = id;
+  }
 
   @Override
   public String toString() {
     return String.format(
-        "User {email=%s, firstName='%s', lastName='%s', birthdate='%s'}",
-        email, firstName, lastName, birthdate.toString());
+        "User {id=%s, email=%s, firstName='%s', lastName='%s', birthdate='%s'}",
+        id, email, firstName, lastName, birthdate.toString());
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 
   public String getEmail() {
@@ -90,11 +109,7 @@ public class User {
   public boolean equals(Object obj) {
     if (obj instanceof User) {
       User that = (User) obj;
-      if (this.email == null) {
-        return that.email == null;
-      } else {
-        return this.email.equals(that.email);
-      }
+      return this.id == that.id;
     }
     
     return false;
