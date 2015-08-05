@@ -16,9 +16,8 @@ To run with remote debugging on port 5005:
 The server will be listening on port 8080. Access application at <http://localhost:8080>
 
 ###TODO
+* Fix dates
 * Improve errors displayed on user form
-* Better date handling
 * Successful operation notifications
 * Download resources
-* Fix date in unit tests
 * User images
